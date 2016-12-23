@@ -185,7 +185,6 @@ public class AdminActivity extends AppCompatActivity implements GoogleApiClient.
             Log.d("LOCATION",adminLocation.getLatitude() + ", "+adminLocation.getLongitude() );
         }
 
-
     }
 
 

@@ -118,36 +118,54 @@ public class MyLocationDemoActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        final IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+
         if (result != null) {
-            if (result.getContents() == null) {
-                Toast.makeText(this, "You cancelled the scanning", Toast.LENGTH_LONG).show();
-            } else {
-                QRlocation =result.getContents();
-                DatabaseReference myRef = database.getReference("QR").child(QRlocation);
-//                myRef.setValue(new LocationOnMap("43", "34"));
-                myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        locationOnMap =  dataSnapshot.getValue(LocationOnMap.class);
-                        Log.d("TAG",locationOnMap.toString());
+            DatabaseReference reference = database.getReference("counters");
+            reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if(!isInt(result.getContents()) || dataSnapshot.getChildrenCount() < Integer.parseInt(result.getContents())){
+                        Toast.makeText(getApplicationContext(), result.getContents() +
+                                " , Location Qr id not exist", Toast.LENGTH_LONG).show();
+                    }else if (result.getContents() == null) {
+                        Toast.makeText(getApplicationContext(), "You cancelled the scanning",
+                                Toast.LENGTH_LONG).show();
+                    }else{
+                        QRlocation =result.getContents();
+                        DatabaseReference myRef = database.getReference("QR").child(QRlocation);
+                        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                locationOnMap =  dataSnapshot.getValue(LocationOnMap.class);
+                                Log.d("TAG",locationOnMap.toString());
 
-                        latLng=new LatLng(Double.parseDouble(locationOnMap.getLatitude()),Double.parseDouble(locationOnMap.getLongitude()));
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,20));
-                        mMap.addMarker(new MarkerOptions().position(latLng).title("QR:"+QRlocation+" location"));
+                                latLng=new LatLng(Double.parseDouble(locationOnMap.getLatitude())
+                                        ,Double.parseDouble(locationOnMap.getLongitude()));
+                                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,20));
+                                mMap.addMarker(new MarkerOptions().position(latLng).title("QR:"
+                                        +QRlocation+" location"));
 
-                        DatabaseReference myRef = database.getReference("users").child(user);
-                        myRef.setValue(new MyLocation(locationOnMap.getLatitude(),locationOnMap.getLongitude(),"user"));
+                                DatabaseReference myRef = database.getReference("users").child(user);
+                                myRef.setValue(new MyLocation(locationOnMap.getLatitude(),
+                                        locationOnMap.getLongitude(),"user"));
 
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
                     }
+                }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-                    }
-                });
+                }
+            });
 
-            }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -281,14 +299,16 @@ public class MyLocationDemoActivity extends AppCompatActivity
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + connectionResult.getErrorCode());
+        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " +
+                connectionResult.getErrorCode());
     }
 
     @Override
     public void onLocationChanged(Location location) {
 
         DatabaseReference myRef = database.getReference("users");
-        myRef.child(user).setValue(new MyLocation(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()), "user"));
+        myRef.child(user).setValue(new MyLocation(String.valueOf(location.getLatitude()),
+                String.valueOf(location.getLongitude()), "user"));
     }
 
     private Location enableGetMyLocation() {
@@ -354,4 +374,18 @@ public class MyLocationDemoActivity extends AppCompatActivity
                 .setActionStatus(Action.STATUS_TYPE_COMPLETED)
                 .build();
     }
+
+    public boolean isInt(String str)
+    {
+        try
+        {
+            int d = Integer.parseInt(str);
+        }
+        catch(NumberFormatException nfe)
+        {
+            return false;
+        }
+        return true;
+    }
+
 }
