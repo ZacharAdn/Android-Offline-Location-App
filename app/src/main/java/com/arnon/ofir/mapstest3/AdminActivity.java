@@ -61,7 +61,6 @@ public class AdminActivity extends AppCompatActivity implements GoogleApiClient.
 
         image = (ImageView) findViewById(R.id.imageQR);
         database = FirebaseDatabase.getInstance();
-
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -69,6 +68,8 @@ public class AdminActivity extends AppCompatActivity implements GoogleApiClient.
                     .addApi(LocationServices.API)
                     .build();
         }
+
+
 
         genBtn.setOnClickListener(new View.OnClickListener() {
             @Override
