@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Spinner dropdown = (Spinner)findViewById(R.id.permiChoose);
+        Spinner dropdown = (Spinner) findViewById(R.id.permiChoose);
         String[] items = new String[]{"User", "Admin"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, items);
         dropdown.setAdapter(adapter);
@@ -44,8 +44,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long l) {
-        Log.d("TAG","parent.getItemAtPosition(pos): "+parent.getItemAtPosition(pos)+ " , userName.getText().toString(): "+userName.getText().toString());
-        if(parent.getItemAtPosition(pos) == "Admin"){
+        if (parent.getItemAtPosition(pos) == "Admin") {
             signIn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -55,27 +54,23 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             String permission = dataSnapshot.getValue(String.class);
-                            if(permission!= null){
-                                Log.d("admin??" ,permission);
-
-                                if(permission.equals("admin")){
-                                    Intent userSignIn = new Intent(MainActivity.this, AdminActivity.class);
-                                    userSignIn.putExtra("admin",userName.getText().toString());
-                                    startActivity(userSignIn);
-                                }
-                            }else{
+                            if (permission != null && permission.equals("admin")) {
+                                Intent userSignIn = new Intent(MainActivity.this, AdminActivity.class);
+                                userSignIn.putExtra("admin", userName.getText().toString());
+                                startActivity(userSignIn);
+                            } else {
                                 Toast.makeText(MainActivity.this, "Not an Admin!", Toast.LENGTH_SHORT).show();
                             }
                         }
 
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
-
+                            Log.d("ERROR", "");
                         }
                     });
                 }
             });
-        }else{
+        } else {
             userChoose();
         }
     }
@@ -89,45 +84,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         signIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent signInIntent=new Intent(MainActivity.this,MyLocationDemoActivity.class);
-                signInIntent.putExtra("user",userName.getText().toString());
+                Intent signInIntent = new Intent(MainActivity.this, MyLocationDemoActivity.class);
+                signInIntent.putExtra("user", userName.getText().toString());
                 startActivity(signInIntent);
             }
         });
 
     }
-
-
-
-//    private int checkIfAdmin(String userName) {
-//        flag=0;
-//
-//        Log.d("userName ", userName);
-//        DatabaseReference ref = database.getReference("users").child(userName).child(("permissions"));
-//
-//        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                String permission = dataSnapshot.getValue(String.class);
-//                Log.d("permi ", permission);
-//
-//                if(permission == "admin"){
-//                    flag = 1;
-//                }else{
-//                    flag = -1;
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
-//
-//        Log.d("ADMINORMOT", String.valueOf(flag));
-//
-//        return flag;
-//    }
-
 
 }
