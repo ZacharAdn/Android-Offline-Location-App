@@ -7,6 +7,8 @@ package com.arnon.ofir.mapstest3;
 public class LocationOnMap {
     private String latitude;
     private String longitude;
+    private String permissions;
+
 
     public LocationOnMap() {
     }
@@ -14,6 +16,13 @@ public class LocationOnMap {
     public LocationOnMap(String latitude, String longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+
+    public LocationOnMap(String latitude, String longitude, String permissions) {
+        this.latitude = latitude;
+
+        this.longitude = longitude;
+        this.permissions=permissions;
     }
 
     public String getLatitude() {
@@ -30,6 +39,14 @@ public class LocationOnMap {
 
     public void setLongitude(String longitude) {
         this.longitude = longitude;
+    }
+
+    public String getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(String permissions) {
+        this.permissions = permissions;
     }
 
     public String toString(){

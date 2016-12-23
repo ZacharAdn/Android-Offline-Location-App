@@ -17,13 +17,10 @@ package com.arnon.ofir.mapstest3;
  */
 
 
-import android.*;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.TextView;
@@ -35,13 +32,8 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.Map;
 
 /**
  * MyLocation sample.
@@ -131,7 +123,7 @@ public class GetLocation extends AppCompatActivity implements
 
 
             DatabaseReference myRef = database.getReference("Locations");
-            myRef.child(locationId.toString()).setValue(new MyLocation(mLatitudeText.getText().toString(),mLongitudeText.getText().toString(),"debug"));
+            myRef.child(locationId.toString()).setValue(new LocationOnMap(mLatitudeText.getText().toString(),mLongitudeText.getText().toString(),"debug"));
             locationId++;
 
 //            // Read from the database

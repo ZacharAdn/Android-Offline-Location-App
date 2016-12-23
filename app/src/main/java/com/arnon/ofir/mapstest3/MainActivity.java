@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         signIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent signInIntent = new Intent(MainActivity.this, MyLocationDemoActivity.class);
+                Intent signInIntent = new Intent(MainActivity.this, UserActivity.class);
                 signInIntent.putExtra("user", userName.getText().toString());
                 startActivity(signInIntent);
             }

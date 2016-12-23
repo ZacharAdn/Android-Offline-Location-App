@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <application
         android:allowBackup="true"
@@ -37,11 +39,14 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MyLocationDemoActivity"
-            android:label="@string/my_location_demo_label" />
+            android:name=".UserActivity"
+            android:label="user Activity" />
         <activity
             android:name=".GetLocation"
             android:label="get location activity" />
+
+        <activity android:name=".AdminActivity"></activity>
+
         <!--
  ATTENTION: This was auto-generated to add Google Play services to your project for
      App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -50,7 +55,6 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name=".AdminActivity"></activity>
     </application>
 
 </manifest>

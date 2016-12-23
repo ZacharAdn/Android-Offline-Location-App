@@ -43,7 +43,7 @@ import com.google.zxing.integration.android.IntentResult;
  * Created by Ofir on 12/16/2016.
  */
 
-public class MyLocationDemoActivity extends AppCompatActivity
+public class UserActivity extends AppCompatActivity
         implements
         GoogleMap.OnMyLocationButtonClickListener, OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback
         , GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
@@ -121,16 +121,17 @@ public class MyLocationDemoActivity extends AppCompatActivity
         final IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
 
         if (result != null) {
-            DatabaseReference reference = database.getReference("counters");
+            DatabaseReference reference = database.getReference("Counters").child("Qrs");
             reference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    if(!isInt(result.getContents()) || dataSnapshot.getChildrenCount() < Integer.parseInt(result.getContents())){
-                        Toast.makeText(getApplicationContext(), result.getContents() +
-                                " , Location Qr id not exist", Toast.LENGTH_LONG).show();
-                    }else if (result.getContents() == null) {
+                    Log.d("***",dataSnapshot.getValue()+ "");
+                    if (result.getContents() == null) {
                         Toast.makeText(getApplicationContext(), "You cancelled the scanning",
                                 Toast.LENGTH_LONG).show();
+                    }else if(!isInt(result.getContents()) || (dataSnapshot.getValue(Integer.class) < Integer.parseInt(result.getContents()))){
+                        Toast.makeText(getApplicationContext(), result.getContents() +
+                                " , Location Qr id not exist", Toast.LENGTH_LONG).show();
                     }else{
                         QRlocation =result.getContents();
                         DatabaseReference myRef = database.getReference("QR").child(QRlocation);
@@ -147,7 +148,7 @@ public class MyLocationDemoActivity extends AppCompatActivity
                                         +QRlocation+" location"));
 
                                 DatabaseReference myRef = database.getReference("users").child(user);
-                                myRef.setValue(new MyLocation(locationOnMap.getLatitude(),
+                                myRef.setValue(new LocationOnMap(locationOnMap.getLatitude(),
                                         locationOnMap.getLongitude(),"user"));
 
                             }
@@ -263,7 +264,7 @@ public class MyLocationDemoActivity extends AppCompatActivity
 
     private void creatUserOnDb() {
         DatabaseReference myRef = database.getReference("users");
-        myRef.child(user).setValue(new MyLocation("0", "0", "user"));
+        myRef.child(user).setValue(new LocationOnMap("0", "0", "user"));
     }
 
     @Override
@@ -307,7 +308,7 @@ public class MyLocationDemoActivity extends AppCompatActivity
     public void onLocationChanged(Location location) {
 
         DatabaseReference myRef = database.getReference("users");
-        myRef.child(user).setValue(new MyLocation(String.valueOf(location.getLatitude()),
+        myRef.child(user).setValue(new LocationOnMap(String.valueOf(location.getLatitude()),
                 String.valueOf(location.getLongitude()), "user"));
     }
 
@@ -328,7 +329,7 @@ public class MyLocationDemoActivity extends AppCompatActivity
 
     private void updateLocationOnDb(Location location) {
         DatabaseReference myRef = database.getReference("users");
-        myRef.child(user).setValue(new MyLocation(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()), "user"));
+        myRef.child(user).setValue(new LocationOnMap(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()), "user"));
     }
 
     private void enableUpdateMyLocation() {
@@ -383,6 +384,7 @@ public class MyLocationDemoActivity extends AppCompatActivity
         }
         catch(NumberFormatException nfe)
         {
+
             return false;
         }
         return true;
