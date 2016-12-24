@@ -1,4 +1,4 @@
-package com.arnon.ofir.mapstest3;
+package com.arnon.ofir.mapstest3.more;
 
 /**
  * Created by Ofir on 12/16/2016.
@@ -14,6 +14,8 @@ import android.content.pm.PackageManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
+
+import com.arnon.ofir.mapstest3.R;
 
 
 /**

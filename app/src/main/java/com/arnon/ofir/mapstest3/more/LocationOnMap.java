@@ -1,4 +1,4 @@
-package com.arnon.ofir.mapstest3;
+package com.arnon.ofir.mapstest3.more;
 
 /**
  * Created by zahar on 22/12/16.

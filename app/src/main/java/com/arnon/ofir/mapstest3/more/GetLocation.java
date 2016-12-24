@@ -1,4 +1,4 @@
-package com.arnon.ofir.mapstest3;
+package com.arnon.ofir.mapstest3.more;
 
 /**
  * Copyright 2014 Google Inc. All Rights Reserved.
@@ -26,6 +26,7 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.arnon.ofir.mapstest3.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;

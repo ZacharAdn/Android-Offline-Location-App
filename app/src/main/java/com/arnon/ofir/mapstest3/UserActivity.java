@@ -17,6 +17,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.arnon.ofir.mapstest3.more.CaptureActivityPortrait;
+import com.arnon.ofir.mapstest3.more.LocationOnMap;
+import com.arnon.ofir.mapstest3.more.PermissionUtils;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
@@ -38,7 +41,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-
 /**
  * Created by Ofir on 12/16/2016.
  */
@@ -53,7 +55,7 @@ public class UserActivity extends AppCompatActivity
     protected GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private String user;
-    private Button QrBtn;
+    private Button QrBtn,BleBtn;
     private LocationOnMap locationOnMap;
     private LatLng latLng ;
     private String QRlocation;
@@ -76,10 +78,6 @@ public class UserActivity extends AppCompatActivity
     private boolean mPermissionDenied = false;
 
     private GoogleMap mMap;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
     private GoogleApiClient client;
 
     @Override
@@ -89,7 +87,7 @@ public class UserActivity extends AppCompatActivity
 
         creatUserOnDb();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.my_location_demo);
+        setContentView(R.layout.user_activity);
         buildGoogleApiClient();
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -98,20 +96,40 @@ public class UserActivity extends AppCompatActivity
         final Activity activity = this;
         buildQR(activity);
 
+        BleBtn= (Button) findViewById(R.id.BleBtn);
+
+        buildBle();
+
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    private void buildBle() {
+        BleBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent ble = new Intent(UserActivity.this, BleActivity.class);
+                startActivity(ble);
+
+            }
+        });
     }
 
     private void buildQR(final Activity activity) {
         QrBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 IntentIntegrator integrator = new IntentIntegrator(activity);
                 integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
-                integrator.setPrompt("Scan");
                 integrator.setCameraId(0);
+                integrator.setPrompt("Scan a barcode");
                 integrator.setBeepEnabled(true);
+                integrator.setOrientationLocked(true);
                 integrator.setBarcodeImageEnabled(true);
+                integrator.setCaptureActivity(CaptureActivityPortrait.class);
                 integrator.initiateScan();
+
+
             }
         });
     }
@@ -125,7 +143,6 @@ public class UserActivity extends AppCompatActivity
             reference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    Log.d("***",dataSnapshot.getValue()+ "");
                     if (result.getContents() == null) {
                         Toast.makeText(getApplicationContext(), "You cancelled the scanning",
                                 Toast.LENGTH_LONG).show();
@@ -139,7 +156,7 @@ public class UserActivity extends AppCompatActivity
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 locationOnMap =  dataSnapshot.getValue(LocationOnMap.class);
-                                Log.d("TAG",locationOnMap.toString());
+//                                Log.d("TAG",locationOnMap.toString());
 
                                 latLng=new LatLng(Double.parseDouble(locationOnMap.getLatitude())
                                         ,Double.parseDouble(locationOnMap.getLongitude()));
