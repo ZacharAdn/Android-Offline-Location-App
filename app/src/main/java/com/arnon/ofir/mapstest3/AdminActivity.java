@@ -1,5 +1,6 @@
 package com.arnon.ofir.mapstest3;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
@@ -39,8 +40,8 @@ import java.util.Date;
 
 public class AdminActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-    private Button genBtn, downloadBtn;
-    private String admin;
+    private Button genBtn, downloadBtn,setBle;
+    private String adminName;
     private ImageView image;
     private String text2Qr;
     private FirebaseDatabase database;
@@ -55,8 +56,10 @@ public class AdminActivity extends AppCompatActivity implements GoogleApiClient.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
 
-        admin = this.getIntent().getExtras().getString("admin");
-        genBtn = (Button) findViewById(R.id.qrGen);
+        adminName = this.getIntent().getExtras().getString("permission");
+        genBtn = (Button) findViewById(R.id.QrBtn);
+        setBle =(Button)findViewById(R.id.setBle);
+
         downloadBtn = (Button) findViewById(R.id.download);
         downloadBtn.setVisibility(View.INVISIBLE);
 
@@ -75,43 +78,17 @@ public class AdminActivity extends AppCompatActivity implements GoogleApiClient.
         genBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getRef = database.getReference("Counters").child("Qrs");
-                getRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        int index = dataSnapshot.getValue(Integer.class);
-                        text2Qr = String.valueOf(index);
+                generateQR();
+            }
+        });
 
-                        //generate the QR
-                        MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
-                        try {
-                            BitMatrix bitMatrix = multiFormatWriter.encode(text2Qr, BarcodeFormat.QR_CODE, 400, 400);
-                            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-                            bitmap = barcodeEncoder.createBitmap(bitMatrix);
-                            image.setImageBitmap(bitmap);
-                        } catch (WriterException e) {
-                            e.printStackTrace();
-                        }
-
-
-                        //use google maps API to get the current location
-                        getAdminLocation();
-
-
-                        //set to the fireBase the new QR location
-                        DatabaseReference setRef = database.getReference("QR").child(text2Qr);
-                        setRef.setValue(adminLocation);
-                        getRef.setValue(Integer.parseInt(text2Qr)+1);
-
-                        downloadBtn.setVisibility(View.VISIBLE);
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.i("DatabaseError", databaseError.toString());
-                    }
-                });
+        setBle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent ble = new Intent(AdminActivity.this, BleActivity.class);
+                ble.putExtra("permission", "admin");
+                ble.putExtra("name", adminName);
+                startActivity(ble);
             }
         });
 
@@ -123,6 +100,46 @@ public class AdminActivity extends AppCompatActivity implements GoogleApiClient.
             }
         });
 
+    }
+
+    private void generateQR() {
+        getRef = database.getReference("Counters").child("Qrs");
+        getRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                int index = dataSnapshot.getValue(Integer.class);
+                text2Qr = String.valueOf(index);
+
+                //generate the QR
+                MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+                try {
+                    BitMatrix bitMatrix = multiFormatWriter.encode(text2Qr, BarcodeFormat.QR_CODE, 400, 400);
+                    BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                    bitmap = barcodeEncoder.createBitmap(bitMatrix);
+                    image.setImageBitmap(bitmap);
+                } catch (WriterException e) {
+                    e.printStackTrace();
+                }
+
+
+                //use google maps API to get the current location
+                getAdminLocation();
+
+
+                //set to the fireBase the new QR location
+                DatabaseReference setRef = database.getReference("QR").child(text2Qr);
+                setRef.setValue(adminLocation);
+                getRef.setValue(Integer.parseInt(text2Qr)+1);
+
+                downloadBtn.setVisibility(View.VISIBLE);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.i("DatabaseError", databaseError.toString());
+            }
+        });
     }
 
     private void storeImage(Bitmap image) {
@@ -187,7 +204,7 @@ public class AdminActivity extends AppCompatActivity implements GoogleApiClient.
         }
 
 
-        DatabaseReference ref =database.getReference("users").child(admin);
+        DatabaseReference ref =database.getReference("users").child(adminName);
         ref.setValue(new LocationOnMap(adminLocation.getLatitude(),adminLocation.getLongitude(),"admin"));
     }
 

@@ -7,7 +7,7 @@ package com.arnon.ofir.mapstest3.more;
 public class LocationOnMap {
     private String latitude;
     private String longitude;
-    private String permissions;
+    private String permissionsOrMac;
 
 
     public LocationOnMap() {
@@ -18,11 +18,11 @@ public class LocationOnMap {
         this.longitude = longitude;
     }
 
-    public LocationOnMap(String latitude, String longitude, String permissions) {
+    public LocationOnMap(String latitude, String longitude, String permissionsOrMac) {
         this.latitude = latitude;
 
         this.longitude = longitude;
-        this.permissions=permissions;
+        this.permissionsOrMac=permissionsOrMac;
     }
 
     public String getLatitude() {
@@ -41,12 +41,12 @@ public class LocationOnMap {
         this.longitude = longitude;
     }
 
-    public String getPermissions() {
-        return permissions;
+    public String getPermissionsOrMac() {
+        return permissionsOrMac;
     }
 
-    public void setPermissions(String permissions) {
-        this.permissions = permissions;
+    public void setPermissionsOrMac(String permissionsOrMac) {
+        this.permissionsOrMac = permissionsOrMac;
     }
 
     public String toString(){

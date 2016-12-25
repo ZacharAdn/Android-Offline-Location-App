@@ -54,7 +54,7 @@ public class UserActivity extends AppCompatActivity
     protected Location mLastLocation;
     protected GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-    private String user;
+    private String userName;
     private Button QrBtn,BleBtn;
     private LocationOnMap locationOnMap;
     private LatLng latLng ;
@@ -83,7 +83,7 @@ public class UserActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         database = FirebaseDatabase.getInstance();
-        user = this.getIntent().getExtras().getString("user");
+        userName = this.getIntent().getExtras().getString("user");
 
         creatUserOnDb();
         super.onCreate(savedInstanceState);
@@ -96,7 +96,7 @@ public class UserActivity extends AppCompatActivity
         final Activity activity = this;
         buildQR(activity);
 
-        BleBtn= (Button) findViewById(R.id.BleBtn);
+        BleBtn = (Button) findViewById(R.id.BleBtn);
 
         buildBle();
 
@@ -108,6 +108,8 @@ public class UserActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 Intent ble = new Intent(UserActivity.this, BleActivity.class);
+                ble.putExtra("permission","user");
+                ble.putExtra("name", userName);
                 startActivity(ble);
 
             }
@@ -164,7 +166,7 @@ public class UserActivity extends AppCompatActivity
                                 mMap.addMarker(new MarkerOptions().position(latLng).title("QR:"
                                         +QRlocation+" location"));
 
-                                DatabaseReference myRef = database.getReference("users").child(user);
+                                DatabaseReference myRef = database.getReference("users").child(userName);
                                 myRef.setValue(new LocationOnMap(locationOnMap.getLatitude(),
                                         locationOnMap.getLongitude(),"user"));
 
@@ -236,7 +238,7 @@ public class UserActivity extends AppCompatActivity
     public boolean onMyLocationButtonClick() {
         Toast.makeText(this, "MyLocation saved on database", Toast.LENGTH_SHORT).show();
         // Return false so that we don't consume the event and the default behavior still occurs
-        // (the camera animates to the user's current position).
+        // (the camera animates to the userName's current position).
 
         //System.out.println(myRef.child("gps"));
         //   }
@@ -281,7 +283,7 @@ public class UserActivity extends AppCompatActivity
 
     private void creatUserOnDb() {
         DatabaseReference myRef = database.getReference("users");
-        myRef.child(user).setValue(new LocationOnMap("0", "0", "user"));
+        myRef.child(userName).setValue(new LocationOnMap("0", "0", "user"));
     }
 
     @Override
@@ -325,7 +327,7 @@ public class UserActivity extends AppCompatActivity
     public void onLocationChanged(Location location) {
 
         DatabaseReference myRef = database.getReference("users");
-        myRef.child(user).setValue(new LocationOnMap(String.valueOf(location.getLatitude()),
+        myRef.child(userName).setValue(new LocationOnMap(String.valueOf(location.getLatitude()),
                 String.valueOf(location.getLongitude()), "user"));
     }
 
@@ -346,7 +348,7 @@ public class UserActivity extends AppCompatActivity
 
     private void updateLocationOnDb(Location location) {
         DatabaseReference myRef = database.getReference("users");
-        myRef.child(user).setValue(new LocationOnMap(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()), "user"));
+        myRef.child(userName).setValue(new LocationOnMap(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()), "userName"));
     }
 
     private void enableUpdateMyLocation() {

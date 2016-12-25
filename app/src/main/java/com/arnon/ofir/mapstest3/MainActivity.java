@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             String permission = dataSnapshot.getValue(String.class);
                             if (permission != null && permission.equals("admin")) {
                                 Intent userSignIn = new Intent(MainActivity.this, AdminActivity.class);
-                                userSignIn.putExtra("admin", userName.getText().toString());
+                                userSignIn.putExtra("permission", userName.getText().toString());
                                 startActivity(userSignIn);
                             } else {
                                 Toast.makeText(MainActivity.this, "Not an Admin!", Toast.LENGTH_SHORT).show();
