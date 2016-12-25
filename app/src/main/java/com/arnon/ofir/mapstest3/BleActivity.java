@@ -26,9 +26,16 @@ import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
 
 public class BleActivity extends Activity implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener{
     private TextView mStatusTv;
@@ -41,6 +48,7 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
     private String userPermission;
     private String userName;
     private BluetoothDevice bluD;
+    private Set<String> bleFromDb;
 
 
     private ProgressDialog mProgressDlg;
@@ -63,6 +71,20 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
         mScanBtn = (Button) findViewById(R.id.btn_scan);
 
         database = FirebaseDatabase.getInstance();
+        database.getReference("Ble").addValueEventListener(new ValueEventListener() {//taking mac's for registerd Ble
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Map<String,Object> deviceMap=(Map<String,Object>)dataSnapshot.getValue();
+                bleFromDb=deviceMap.keySet();
+                Log.d("BLE_DEBUG",bleFromDb.toString());
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
         if(userPermission.equals("admin")){
             mScanBtn.setText("Pair or Unpair Devices");
         }
@@ -287,6 +309,19 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
 
                 Intent newIntent = new Intent(BleActivity.this, DeviceListActivity.class);
                 newIntent.putExtra("permissions", userPermission);
+                newIntent.putExtra("user",userName);
+
+                if(!userPermission.equals("admin")) {
+                    Iterator<BluetoothDevice> deviceIt = mDeviceList.iterator();
+                    while (deviceIt.hasNext()) {
+                        BluetoothDevice bld = deviceIt.next();
+                        if (!bleFromDb.contains(bld.getAddress())) {
+                            deviceIt.remove();
+                        }
+                    }
+                }
+                Log.d("bleFromDb2",bleFromDb.toString());
+                Log.d("mDeviceList2",mDeviceList.toString());
                 newIntent.putParcelableArrayListExtra("device.list", mDeviceList);
 
                 startActivity(newIntent);

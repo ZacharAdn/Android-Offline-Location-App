@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.arnon.ofir.mapstest3.more.BleDetails;
 import com.arnon.ofir.mapstest3.more.CaptureActivityPortrait;
 import com.arnon.ofir.mapstest3.more.LocationOnMap;
 import com.arnon.ofir.mapstest3.more.PermissionUtils;
@@ -179,6 +180,18 @@ public class UserActivity extends AppCompatActivity
         }
 
     }
+    private void isArivedFromBle(){
+        if(this.getIntent().getExtras().getSerializable("showBleOnMap")!=null){
+            showBleOnMap();
+        }
+    }
+    private void showBleOnMap(){
+        IconGenerator iconFactory = new IconGenerator(this);
+        BleDetails bleD= (BleDetails) this.getIntent().getExtras().getSerializable("showBleOnMap");
+        LatLng bleLoaction=new LatLng(Double.parseDouble(bleD.getLatitude()), Double.parseDouble(bleD.getLongitude()));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(bleLoaction, 30));
+        addIcon(iconFactory, bleD.getMacAddress(),bleLoaction );
+    }
 
     private void GetUserData() {
         database.getReference("users").addValueEventListener(new ValueEventListener() {
@@ -296,6 +309,7 @@ public class UserActivity extends AppCompatActivity
 
         mMap.setOnMyLocationButtonClickListener(this);
         enableMyLocation();
+        isArivedFromBle();// check if to add Ble icon
 
     }
 

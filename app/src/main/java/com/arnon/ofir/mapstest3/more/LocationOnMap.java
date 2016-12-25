@@ -10,6 +10,7 @@ public class LocationOnMap {
     private String permissions;
 
 
+
     public LocationOnMap() {
     }
 

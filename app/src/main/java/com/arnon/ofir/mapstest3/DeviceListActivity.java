@@ -6,12 +6,21 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.arnon.ofir.mapstest3.more.BleDetails;
 import com.arnon.ofir.mapstest3.more.DeviceListAdapter;
+import com.arnon.ofir.mapstest3.more.LocationOnMap;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -27,6 +36,7 @@ public class DeviceListActivity extends Activity {
 	private DeviceListAdapter mAdapter;
 	private ArrayList<BluetoothDevice> mDeviceList;
 	private String permissions;
+	private String userName;
 	private FirebaseDatabase database;
 
 	@Override
@@ -34,6 +44,7 @@ public class DeviceListActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_paired_devices);
+		userName=this.getIntent().getExtras().getString("user");
 		permissions = this.getIntent().getExtras().getString("permissions");
 
 		mDeviceList		= getIntent().getExtras().getParcelableArrayList("device.list");
@@ -43,21 +54,37 @@ public class DeviceListActivity extends Activity {
 		mAdapter		= new DeviceListAdapter(this);
 
 		mAdapter.setData(mDeviceList,permissions);
-		mAdapter.setListener(new DeviceListAdapter.OnPairButtonClickListener() {
+		mAdapter.setListener(new DeviceListAdapter.OnShowOnMapButtonClickListener() {
 			@Override
-			public void onPairButtonClick(int position){
-                BluetoothDevice device = mDeviceList.get(position);
+			public void onShowOnMapButtonClick(int position) {
+				if (permissions.equals("admin")) {
 
-                if (device.getBondState() == BluetoothDevice.BOND_BONDED) {
-                    unpairDevice(device);
-                } else {
-                    showToast("Pairing...");
-                    //TODO set location on fireBase when its done to pair
 
-                    pairDevice(device);
-                }
+				} else {
+					Log.d("after_ShowOnmap_Clicked","case user ");
+
+					final String macAdd=mDeviceList.get(0).getAddress();
+					Log.d("mac Address",macAdd );
+					database.getInstance().getReference("Ble").child(macAdd).addValueEventListener(new ValueEventListener() {
+						@Override
+						public void onDataChange(DataSnapshot dataSnapshot) {
+							LocationOnMap lom=dataSnapshot.getValue(LocationOnMap.class);
+							BleDetails bleD=new BleDetails(lom.getLatitude(),lom.getLongitude(),macAdd);
+							Intent signInIntent = new Intent(DeviceListActivity.this, UserActivity.class);
+							signInIntent.putExtra("showBleOnMap",bleD);
+							signInIntent.putExtra("user",userName);
+							startActivity(signInIntent);
+						}
+
+						@Override
+						public void onCancelled(DatabaseError databaseError) {
+
+						}
+					});
+				}
 			}
 		});
+
 
 		mListView.setAdapter(mAdapter);
 
