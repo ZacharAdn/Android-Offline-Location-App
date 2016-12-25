@@ -20,26 +20,19 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.arnon.ofir.mapstest3.more.LocationOnMap;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 public class BleActivity extends Activity implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener{
     private TextView mStatusTv;
     private Button mActivateBtn;
-    private Button mPairedBtn;
     private Button mScanBtn;
     private Button addDevice;
     protected GoogleApiClient mGoogleApiClient;
@@ -67,7 +60,6 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
 
         mStatusTv = (TextView) findViewById(R.id.tv_status);
         mActivateBtn = (Button) findViewById(R.id.btn_enable);
-        mPairedBtn = (Button) findViewById(R.id.btn_view_paired);
         mScanBtn = (Button) findViewById(R.id.btn_scan);
 
         database = FirebaseDatabase.getInstance();
@@ -88,87 +80,87 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
                 mBluetoothAdapter.cancelDiscovery();
             }
         });
-
-        if (mBluetoothAdapter == null) {
-            showUnsupported();
-        } else {
-            mPairedBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    final Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-
-                    if (pairedDevices == null || pairedDevices.size() == 0) {
-                        showToast("No Located Devices Found");
-                    } else {
-                        final ArrayList<BluetoothDevice> list = new ArrayList<BluetoothDevice>();
-                        DatabaseReference reference = database.getReference("Ble");
-
-                        for (final BluetoothDevice blD : pairedDevices) {
-                            Log.d("GGGGG","count");
-                            if(blD.getName().contains("JBL GO")){
-                                Log.d("GBL", blD.getAddress());
-                            }
-                            reference.child(blD.getAddress()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    Log.d("somone in", "!!!!!!");
-//                                    Log.d("Before the list" ,dataSnapshot.getValue(LocationOnMap.class).getLatitude());
-                                    LocationOnMap loc = dataSnapshot.getValue(LocationOnMap.class);
-                                    if (loc != null) {
-                                        list.add(blD);
-                                        Log.d("Print from list" , blD.getAddress());
-                                    }
-
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
-//                            Log.d("reference.child(blD.getAddress()):",reference.child(blD.getAddress()).toString());
-                        }
-//                            reference.addListenerForSingleValueEvent(new ValueEventListener() {
+//
+//        if (mBluetoothAdapter == null) {
+//            showUnsupported();
+//        } else {
+//            mPairedBtn.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//
+//                    final Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+//
+//                    if (pairedDevices == null || pairedDevices.size() == 0) {
+//                        showToast("No Located Devices Found");
+//                    } else {
+//                        final ArrayList<BluetoothDevice> list = new ArrayList<BluetoothDevice>();
+//                        DatabaseReference reference = database.getReference("Ble");
+//
+//                        for (final BluetoothDevice blD : pairedDevices) {
+//                            Log.d("GGGGG","count");
+//                            if(blD.getName().contains("JBL GO")){
+//                                Log.d("GBL", blD.getAddress());
+//                            }
+//                            reference.child(blD.getAddress()).addListenerForSingleValueEvent(new ValueEventListener() {
 //                                @Override
 //                                public void onDataChange(DataSnapshot dataSnapshot) {
-//                                    LocationOnMap location = dataSnapshot.getValue(LocationOnMap.class);
-//                                    int bles= (int)dataSnapshot.getChildrenCount();
-//
-//                                    List<DataSnapshot> databaseBle = (List<DataSnapshot>) dataSnapshot.getChildren();
-//                                    for (DataSnapshot blePoint : databaseBle){
-//
+//                                    Log.d("somone in", "!!!!!!");
+////                                    Log.d("Before the list" ,dataSnapshot.getValue(LocationOnMap.class).getLatitude());
+//                                    LocationOnMap loc = dataSnapshot.getValue(LocationOnMap.class);
+//                                    if (loc != null) {
+//                                        list.add(blD);
+//                                        Log.d("Print from list" , blD.getAddress());
 //                                    }
 //
-//                                    for (int i = 0; i < bles; i++) {
-//                                        LocationOnMap loc = dataSnapshot.child(String.valueOf(i)).getValue(LocationOnMap.class);
-//                                        if(blD.getAddress().equals(loc.getPermissions())){
-//                                            showToast("Pairing...");
-//                                            list.add(blD);
-//                                            i=bles;
-//                                        }
-//                                    }
 //                                }
 //
 //                                @Override
 //                                public void onCancelled(DatabaseError databaseError) {
-//                                    Log.d("DatabaseError","reference.addListenerForSingleValueEvent canceld");
+//
 //                                }
 //                            });
-
-//                        list.addAll(pairedDevices);
-                        if (list.size() == 0) {
-                            showToast("No Located Devices Found");
-                        }
-
-                        Intent intent = new Intent(BleActivity.this, DeviceListActivity.class);
-
-                        intent.putParcelableArrayListExtra("device.list", list);
-
-                        startActivity(intent);
-                    }
-                }
-            });
+////                            Log.d("reference.child(blD.getAddress()):",reference.child(blD.getAddress()).toString());
+//                        }
+////                            reference.addListenerForSingleValueEvent(new ValueEventListener() {
+////                                @Override
+////                                public void onDataChange(DataSnapshot dataSnapshot) {
+////                                    LocationOnMap location = dataSnapshot.getValue(LocationOnMap.class);
+////                                    int bles= (int)dataSnapshot.getChildrenCount();
+////
+////                                    List<DataSnapshot> databaseBle = (List<DataSnapshot>) dataSnapshot.getChildren();
+////                                    for (DataSnapshot blePoint : databaseBle){
+////
+////                                    }
+////
+////                                    for (int i = 0; i < bles; i++) {
+////                                        LocationOnMap loc = dataSnapshot.child(String.valueOf(i)).getValue(LocationOnMap.class);
+////                                        if(blD.getAddress().equals(loc.getPermissions())){
+////                                            showToast("Pairing...");
+////                                            list.add(blD);
+////                                            i=bles;
+////                                        }
+////                                    }
+////                                }
+////
+////                                @Override
+////                                public void onCancelled(DatabaseError databaseError) {
+////                                    Log.d("DatabaseError","reference.addListenerForSingleValueEvent canceld");
+////                                }
+////                            });
+//
+////                        list.addAll(pairedDevices);
+//                        if (list.size() == 0) {
+//                            showToast("No Located Devices Found");
+//                        }
+//
+//                        Intent intent = new Intent(BleActivity.this, DeviceListActivity.class);
+//
+//                        intent.putParcelableArrayListExtra("device.list", list);
+//
+//                        startActivity(intent);
+//                    }
+//                }
+//            });
 
             mScanBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -192,11 +184,10 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
                 }
             });
 
-            if (mBluetoothAdapter.isEnabled()) {
-                showEnabled();
-            } else {
-                showDisabled();
-            }
+        if (mBluetoothAdapter.isEnabled()) {
+            showEnabled();
+        } else {
+            showDisabled();
         }
 
         IntentFilter filter = new IntentFilter();
@@ -249,7 +240,6 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
         mActivateBtn.setText("Disable");
         mActivateBtn.setEnabled(true);
 
-        mPairedBtn.setEnabled(true);
         mScanBtn.setEnabled(true);
     }
 
@@ -260,7 +250,6 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
         mActivateBtn.setText("Enable");
         mActivateBtn.setEnabled(true);
 
-        mPairedBtn.setEnabled(false);
         mScanBtn.setEnabled(false);
     }
 
@@ -270,7 +259,6 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
         mActivateBtn.setText("Enable");
         mActivateBtn.setEnabled(false);
 
-        mPairedBtn.setEnabled(false);
         mScanBtn.setEnabled(false);
     }
 
@@ -318,8 +306,7 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
      */
     public Action getIndexApiAction() {
         Thing object = new Thing.Builder()
-                .setName("Ble Page") // TODO: Define a title for the content shown.
-                // TODO: Make sure this auto-generated URL is correct.
+                .setName("Ble Page")
                 .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
                 .build();
         return new Action.Builder(Action.TYPE_VIEW)

@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.arnon.ofir.mapstest3.R;
@@ -73,22 +72,6 @@ public class DeviceListAdapter extends BaseAdapter{
 
 		holder.nameTv.setText(device.getName());
 		holder.addressTv.setText(device.getAddress());
-		if(_permission.equals("admin")) {
-			holder.pairBtn		= (Button) convertView.findViewById(R.id.btn_pair);
-			holder.pairBtn.setText((device.getBondState() == BluetoothDevice.BOND_BONDED) ? "Unpair" : "Pair");
-			holder.pairBtn.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (mListener != null) {
-						mListener.onPairButtonClick(position);
-					}
-				}
-			});
-		}else {
-			//TODO check if in the database and than show in map
-		}
-
-
 
 		return convertView;
 	}
@@ -96,7 +79,6 @@ public class DeviceListAdapter extends BaseAdapter{
 	static class ViewHolder {
 		TextView nameTv;
 		TextView addressTv;
-		TextView pairBtn;
 	}
 
 	public interface OnPairButtonClickListener {

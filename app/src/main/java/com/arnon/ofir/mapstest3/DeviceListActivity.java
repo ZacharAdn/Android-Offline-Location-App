@@ -52,7 +52,7 @@ public class DeviceListActivity extends Activity {
                     unpairDevice(device);
                 } else {
                     showToast("Pairing...");
-                    //TODO set location to database
+                    //TODO set location on fireBase when its done to pair
 
                     pairDevice(device);
                 }
