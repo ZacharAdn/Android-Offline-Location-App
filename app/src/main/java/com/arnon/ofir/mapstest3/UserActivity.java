@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.arnon.ofir.mapstest3.more.CaptureActivityPortrait;
 import com.arnon.ofir.mapstest3.more.LocationOnMap;
 import com.arnon.ofir.mapstest3.more.PermissionUtils;
+import com.arnon.ofir.mapstest3.more.userDetails;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
@@ -32,6 +33,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
@@ -39,8 +41,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.maps.android.ui.IconGenerator;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+
+import java.util.ArrayList;
+import java.util.Map;
+
 /**
  * Created by Ofir on 12/16/2016.
  */
@@ -59,6 +66,8 @@ public class UserActivity extends AppCompatActivity
     private LocationOnMap locationOnMap;
     private LatLng latLng ;
     private String QRlocation;
+    private ArrayList<userDetails> userDetailsList;
+
 
     private int a;
 
@@ -84,10 +93,12 @@ public class UserActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         database = FirebaseDatabase.getInstance();
         userName = this.getIntent().getExtras().getString("user");
+        checkDBupdate();
 
         creatUserOnDb();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_activity);
+        buttonsListener();
         buildGoogleApiClient();
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -101,6 +112,93 @@ public class UserActivity extends AppCompatActivity
         buildBle();
 
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    private void buttonsListener() {
+        Button frienndsLocations = (Button) findViewById(R.id.selectBtn);
+        frienndsLocations.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent frienndsLocationsIntent = new Intent(UserActivity.this, ListViewedUserSelect.class);
+                frienndsLocationsIntent.putExtra("user", userName);
+                frienndsLocationsIntent.putExtra("users", userDetailsList);
+                startActivity(frienndsLocationsIntent);//userDetailsList
+
+            }
+        });
+        Button showBtn = (Button) findViewById(R.id.showLocationBtn);
+        showBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showSelectedUserMarks();
+            }
+        });
+
+
+    }
+
+    private void showSelectedUserMarks() {
+        IconGenerator iconFactory = new IconGenerator(this);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(32.1041943, 35.2050993), 10));
+        for (userDetails userDetails : userDetailsList) {
+            if (userDetails.isSelected()) {
+                int randStyle = (int)( Math.random() * 3);
+                switch (randStyle) {
+                    case 0:
+                        iconFactory.setStyle(IconGenerator.STYLE_RED);
+                        break;
+                    case 1:
+                        iconFactory.setStyle(IconGenerator.STYLE_PURPLE);
+                        break;
+                    case 2:
+                        iconFactory.setStyle(IconGenerator.STYLE_GREEN);
+                        break;
+
+                }
+                addIcon(iconFactory, userDetails.getuserName(), new LatLng(Double.parseDouble(userDetails.getLatitude()), Double.parseDouble(userDetails.getLongitude())));
+            }
+        }
+
+    }
+
+    private void addIcon(IconGenerator iconFactory, String text, LatLng position) {
+        MarkerOptions markerOptions = new MarkerOptions().
+                icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon(text))).
+                position(position).
+                anchor(iconFactory.getAnchorU(), iconFactory.getAnchorV());
+
+        mMap.addMarker(markerOptions);
+
+    }
+
+    private void checkDBupdate() {
+        if (this.getIntent().getExtras().getSerializable("users") == null) {
+            GetUserData();
+        } else {
+            userDetailsList = (ArrayList<userDetails>) this.getIntent().getExtras().getSerializable("users");
+        }
+
+    }
+
+    private void GetUserData() {
+        database.getReference("users").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("1","********get users DB************");
+                userDetailsList = new ArrayList<userDetails>();
+                Map<String, Map<String, String>> map = (Map<String, Map<String, String>>) dataSnapshot.getValue();
+                for (Map.Entry<String, Map<String, String>> entry : map.entrySet()) {
+                    userDetails userDetails = new userDetails(entry.getValue().get("permissions"), entry.getKey(), false, entry.getValue().get("latitude"), entry.getValue().get("longitude"));
+                    userDetailsList.add(userDetails);
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError DbError) {
+                Log.d("1", "Database Error: " + DbError.getMessage());
+            }
+        });
+
+
     }
 
     private void buildBle() {
@@ -378,11 +476,6 @@ public class UserActivity extends AppCompatActivity
             mMap.setMyLocationEnabled(true);
         }
     }
-
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
     public Action getIndexApiAction() {
         Thing object = new Thing.Builder()
                 .setName("MyLocationDemo Page")

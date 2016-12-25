@@ -65,6 +65,8 @@
             android:windowSoftInputMode="stateAlwaysHidden">
         </activity>
 
+        <activity android:name=".ListViewedUserSelect"></activity>
+
 </application>
 
 </manifest>

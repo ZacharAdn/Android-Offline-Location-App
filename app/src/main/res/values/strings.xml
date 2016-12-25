@@ -21,6 +21,7 @@
     <string name="text_list_paired_devices">Paired Devices</string>
     <string name="text_list_devices">List of Devices</string>
 		<string name="text_pair">Show In Map</string>
+    <string name="some_text">select user to show</string>
     No location detected. Make sure location is enabled on the device.
 </resources>
 
