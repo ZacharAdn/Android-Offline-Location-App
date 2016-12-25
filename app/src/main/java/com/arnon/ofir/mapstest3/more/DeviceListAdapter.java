@@ -64,18 +64,12 @@ public class DeviceListAdapter extends BaseAdapter{
 
 			holder 				= new ViewHolder();
 			holder.showOnMapBtn		= (Button) convertView.findViewById(R.id.showOnMapBtn);
+			if(_permission.equals("admin")){
+				holder.showOnMapBtn.setText(""+"SAVE");
+			}
 			holder.nameTv		= (TextView) convertView.findViewById(R.id.tv_name);
 			holder.addressTv 	= (TextView) convertView.findViewById(R.id.tv_address);
 
-//			Button showOnMapBtn=(Button) convertView.findViewById(R.id.showOnMapBtn);
-//			showOnMapBtn.setOnClickListener(new View.OnClickListener() {
-//				@Override
-//				public void onClick(View v) {
-//					Log.d("Button_Debug","Button ShowOnMap Clicked");
-//					Intent signInIntent = new Intent(v.getContext(), UserActivity.class);
-//					signInIntent.putExtra()
-//				}
-//			});
 
 			convertView.setTag(holder);
 		} else {

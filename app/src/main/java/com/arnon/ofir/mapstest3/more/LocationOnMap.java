@@ -1,10 +1,12 @@
 package com.arnon.ofir.mapstest3.more;
 
+import java.io.Serializable;
+
 /**
  * Created by zahar on 22/12/16.
  */
 
-public class LocationOnMap {
+public class LocationOnMap implements Serializable{
     private String latitude;
     private String longitude;
     private String permissions;

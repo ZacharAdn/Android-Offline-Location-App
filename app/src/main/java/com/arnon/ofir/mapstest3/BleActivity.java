@@ -1,5 +1,6 @@
 package com.arnon.ofir.mapstest3;
 
+import android.*;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -9,25 +10,34 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.arnon.ofir.mapstest3.more.LocationOnMap;
+import com.arnon.ofir.mapstest3.more.PermissionUtils;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -37,7 +47,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
-public class BleActivity extends Activity implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener{
+public class BleActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener {
     private TextView mStatusTv;
     private Button mActivateBtn;
     private Button mScanBtn;
@@ -49,6 +59,10 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
     private String userName;
     private BluetoothDevice bluD;
     private Set<String> bleFromDb;
+    private LocationOnMap myLocationForBleAdmin;
+    protected Location mLastLocation;
+    private LocationRequest mLocationRequest;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
 
     private ProgressDialog mProgressDlg;
@@ -56,6 +70,9 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
     private ArrayList<BluetoothDevice> mDeviceList = new ArrayList<BluetoothDevice>();
 
     private BluetoothAdapter mBluetoothAdapter;
+
+    private long UPDATE_INTERVAL = 10 * 1000;  /* 10 secs */
+    private long FASTEST_INTERVAL = 5000; /* 2 sec */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,87 +119,6 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
                 mBluetoothAdapter.cancelDiscovery();
             }
         });
-//
-//        if (mBluetoothAdapter == null) {
-//            showUnsupported();
-//        } else {
-//            mPairedBtn.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//
-//                    final Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-//
-//                    if (pairedDevices == null || pairedDevices.size() == 0) {
-//                        showToast("No Located Devices Found");
-//                    } else {
-//                        final ArrayList<BluetoothDevice> list = new ArrayList<BluetoothDevice>();
-//                        DatabaseReference reference = database.getReference("Ble");
-//
-//                        for (final BluetoothDevice blD : pairedDevices) {
-//                            Log.d("GGGGG","count");
-//                            if(blD.getName().contains("JBL GO")){
-//                                Log.d("GBL", blD.getAddress());
-//                            }
-//                            reference.child(blD.getAddress()).addListenerForSingleValueEvent(new ValueEventListener() {
-//                                @Override
-//                                public void onDataChange(DataSnapshot dataSnapshot) {
-//                                    Log.d("somone in", "!!!!!!");
-////                                    Log.d("Before the list" ,dataSnapshot.getValue(LocationOnMap.class).getLatitude());
-//                                    LocationOnMap loc = dataSnapshot.getValue(LocationOnMap.class);
-//                                    if (loc != null) {
-//                                        list.add(blD);
-//                                        Log.d("Print from list" , blD.getAddress());
-//                                    }
-//
-//                                }
-//
-//                                @Override
-//                                public void onCancelled(DatabaseError databaseError) {
-//
-//                                }
-//                            });
-////                            Log.d("reference.child(blD.getAddress()):",reference.child(blD.getAddress()).toString());
-//                        }
-////                            reference.addListenerForSingleValueEvent(new ValueEventListener() {
-////                                @Override
-////                                public void onDataChange(DataSnapshot dataSnapshot) {
-////                                    LocationOnMap location = dataSnapshot.getValue(LocationOnMap.class);
-////                                    int bles= (int)dataSnapshot.getChildrenCount();
-////
-////                                    List<DataSnapshot> databaseBle = (List<DataSnapshot>) dataSnapshot.getChildren();
-////                                    for (DataSnapshot blePoint : databaseBle){
-////
-////                                    }
-////
-////                                    for (int i = 0; i < bles; i++) {
-////                                        LocationOnMap loc = dataSnapshot.child(String.valueOf(i)).getValue(LocationOnMap.class);
-////                                        if(blD.getAddress().equals(loc.getPermissions())){
-////                                            showToast("Pairing...");
-////                                            list.add(blD);
-////                                            i=bles;
-////                                        }
-////                                    }
-////                                }
-////
-////                                @Override
-////                                public void onCancelled(DatabaseError databaseError) {
-////                                    Log.d("DatabaseError","reference.addListenerForSingleValueEvent canceld");
-////                                }
-////                            });
-//
-////                        list.addAll(pairedDevices);
-//                        if (list.size() == 0) {
-//                            showToast("No Located Devices Found");
-//                        }
-//
-//                        Intent intent = new Intent(BleActivity.this, DeviceListActivity.class);
-//
-//                        intent.putParcelableArrayListExtra("device.list", list);
-//
-//                        startActivity(intent);
-//                    }
-//                }
-//            });
 
             mScanBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -310,6 +246,7 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
                 Intent newIntent = new Intent(BleActivity.this, DeviceListActivity.class);
                 newIntent.putExtra("permissions", userPermission);
                 newIntent.putExtra("user",userName);
+                newIntent.putExtra("admin_location",myLocationForBleAdmin);
 
                 if(!userPermission.equals("admin")) {
                     Iterator<BluetoothDevice> deviceIt = mDeviceList.iterator();
@@ -352,7 +289,8 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-
+        Location mCurrentLocation = enableGetMyLocation();
+        myLocationForBleAdmin=new LocationOnMap(String.valueOf(mCurrentLocation.getLatitude()),String.valueOf(mCurrentLocation.getLongitude()));
     }
 
     @Override
@@ -361,6 +299,7 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
         mGoogleApiClient.connect();
 
     }
+
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
@@ -376,6 +315,19 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
         mGoogleApiClient.disconnect();
         super.onStop();
     }
-
+    private Location enableGetMyLocation() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the location is missing.
+            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION, true);
+        } else if (mGoogleApiClient != null) {
+            // Access to the location has been granted to the app.
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            // LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
+            //mLocationRequest, this);
+        }
+        return mLastLocation;
+    }
 
 }

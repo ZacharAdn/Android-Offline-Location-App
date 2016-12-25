@@ -19,6 +19,7 @@ import com.arnon.ofir.mapstest3.more.DeviceListAdapter;
 import com.arnon.ofir.mapstest3.more.LocationOnMap;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -35,6 +36,7 @@ public class DeviceListActivity extends Activity {
 	private ListView mListView;
 	private DeviceListAdapter mAdapter;
 	private ArrayList<BluetoothDevice> mDeviceList;
+	private LocationOnMap myLocation;
 	private String permissions;
 	private String userName;
 	private FirebaseDatabase database;
@@ -45,6 +47,7 @@ public class DeviceListActivity extends Activity {
 
 		setContentView(R.layout.activity_paired_devices);
 		userName=this.getIntent().getExtras().getString("user");
+		myLocation= (LocationOnMap) this.getIntent().getExtras().getSerializable("admin_location");
 		permissions = this.getIntent().getExtras().getString("permissions");
 
 		mDeviceList		= getIntent().getExtras().getParcelableArrayList("device.list");
@@ -57,13 +60,21 @@ public class DeviceListActivity extends Activity {
 		mAdapter.setListener(new DeviceListAdapter.OnShowOnMapButtonClickListener() {
 			@Override
 			public void onShowOnMapButtonClick(int position) {
+
 				if (permissions.equals("admin")) {
-
-
+					Log.d("after_ShowOnmap_Clicked","case admin ");
+					BluetoothDevice device = mDeviceList.get(position);
+					if(myLocation!=null){
+					database.getInstance().getReference("Ble").child(device.getAddress()).setValue(myLocation);
+					showToast("Bluetooth Device: "+device.getAddress()+"  created on DB");
+					showToast("Device Location: "+myLocation);
+					}else{
+						showToast("cannot find my location.");
+					}
 				} else {
 					Log.d("after_ShowOnmap_Clicked","case user ");
 
-					final String macAdd=mDeviceList.get(0).getAddress();
+					final String macAdd=mDeviceList.get(position).getAddress();
 					Log.d("mac Address",macAdd );
 					database.getInstance().getReference("Ble").child(macAdd).addValueEventListener(new ValueEventListener() {
 						@Override

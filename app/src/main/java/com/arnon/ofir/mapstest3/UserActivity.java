@@ -62,6 +62,7 @@ public class UserActivity extends AppCompatActivity
     protected Location mLastLocation;
     protected GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private String userName;
     private Button QrBtn,BleBtn;
     private LocationOnMap locationOnMap;
@@ -79,7 +80,7 @@ public class UserActivity extends AppCompatActivity
      *
      * @see #onRequestPermissionsResult(int, String[], int[])
      */
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+
     protected static final String TAG = "GetLocation";
     /**
      * Flag indicating whether a requested permission has been denied after returning in
