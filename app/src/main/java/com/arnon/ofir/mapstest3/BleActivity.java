@@ -103,7 +103,7 @@ public class BleActivity extends AppCompatActivity implements GoogleApiClient.Co
             }
         });
         if(userPermission.equals("admin")){
-            mScanBtn.setText("Pair or Unpair Devices");
+            mScanBtn.setText("Add Device to DB");
         }
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
