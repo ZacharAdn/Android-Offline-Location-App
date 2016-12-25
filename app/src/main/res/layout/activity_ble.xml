@@ -40,11 +40,11 @@ android:padding="@dimen/activity_vertical_margin">
     android:enabled="false"
     android:text="@string/text_scan_devices" />
 
-    <Button
-        android:id="@+id/add_loca_device"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:text="@string/add_dev" />
+    <!--<Button-->
+        <!--android:id="@+id/add_loca_device"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginTop="@dimen/activity_vertical_margin"-->
+        <!--android:text="@string/add_dev" />-->
 
 </LinearLayout>

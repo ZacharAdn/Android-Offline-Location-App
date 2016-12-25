@@ -47,6 +47,7 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
     private FirebaseDatabase database;
     private String userPermission;
     private String userName;
+    private BluetoothDevice bluD;
 
 
     private ProgressDialog mProgressDlg;
@@ -68,16 +69,11 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
         mActivateBtn = (Button) findViewById(R.id.btn_enable);
         mPairedBtn = (Button) findViewById(R.id.btn_view_paired);
         mScanBtn = (Button) findViewById(R.id.btn_scan);
-        addDevice = (Button) findViewById(R.id.add_loca_device);
 
-
-//        Log.d("******************",userPermission);
+        database = FirebaseDatabase.getInstance();
         if(userPermission.equals("admin")){
-            addDevice.setEnabled(true);
-        }else{
-            addDevice.setEnabled(false);
+            mScanBtn.setText("Pair or Unpair Devices");
         }
-
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         mProgressDlg = new ProgressDialog(this);
@@ -105,33 +101,65 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
                     if (pairedDevices == null || pairedDevices.size() == 0) {
                         showToast("No Located Devices Found");
                     } else {
-                        ArrayList<BluetoothDevice> list = new ArrayList<BluetoothDevice>();
+                        final ArrayList<BluetoothDevice> list = new ArrayList<BluetoothDevice>();
                         DatabaseReference reference = database.getReference("Ble");
 
-                        for (final BluetoothDevice blD : pairedDevices){//int i = 0; i < pairedDevices.size(); i++) {
-                            reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                        for (final BluetoothDevice blD : pairedDevices) {
+                            Log.d("GGGGG","count");
+                            if(blD.getName().contains("JBL GO")){
+                                Log.d("GBL", blD.getAddress());
+                            }
+                            reference.child(blD.getAddress()).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
-                                    int bles= (int)dataSnapshot.getChildrenCount();
-                                    for (int i = 0; i < bles; i++) {
-                                        LocationOnMap loc = dataSnapshot.child(String.valueOf(i)).getValue(LocationOnMap.class);
-                                        if(blD.getAddress().equals(loc.getPermissionsOrMac())){
-                                            showToast("Pairing...");
-//                                            list.add(blD);
-                                            i=bles;
-                                        }
+                                    Log.d("somone in", "!!!!!!");
+//                                    Log.d("Before the list" ,dataSnapshot.getValue(LocationOnMap.class).getLatitude());
+                                    LocationOnMap loc = dataSnapshot.getValue(LocationOnMap.class);
+                                    if (loc != null) {
+                                        list.add(blD);
+                                        Log.d("Print from list" , blD.getAddress());
                                     }
+
                                 }
 
                                 @Override
                                 public void onCancelled(DatabaseError databaseError) {
-                                    Log.d("DatabaseError","reference.addListenerForSingleValueEvent canceld");
+
                                 }
                             });
-
+//                            Log.d("reference.child(blD.getAddress()):",reference.child(blD.getAddress()).toString());
                         }
+//                            reference.addListenerForSingleValueEvent(new ValueEventListener() {
+//                                @Override
+//                                public void onDataChange(DataSnapshot dataSnapshot) {
+//                                    LocationOnMap location = dataSnapshot.getValue(LocationOnMap.class);
+//                                    int bles= (int)dataSnapshot.getChildrenCount();
+//
+//                                    List<DataSnapshot> databaseBle = (List<DataSnapshot>) dataSnapshot.getChildren();
+//                                    for (DataSnapshot blePoint : databaseBle){
+//
+//                                    }
+//
+//                                    for (int i = 0; i < bles; i++) {
+//                                        LocationOnMap loc = dataSnapshot.child(String.valueOf(i)).getValue(LocationOnMap.class);
+//                                        if(blD.getAddress().equals(loc.getPermissions())){
+//                                            showToast("Pairing...");
+//                                            list.add(blD);
+//                                            i=bles;
+//                                        }
+//                                    }
+//                                }
+//
+//                                @Override
+//                                public void onCancelled(DatabaseError databaseError) {
+//                                    Log.d("DatabaseError","reference.addListenerForSingleValueEvent canceld");
+//                                }
+//                            });
 
-                        list.addAll(pairedDevices);
+//                        list.addAll(pairedDevices);
+                        if (list.size() == 0) {
+                            showToast("No Located Devices Found");
+                        }
 
                         Intent intent = new Intent(BleActivity.this, DeviceListActivity.class);
 
@@ -170,13 +198,6 @@ public class BleActivity extends Activity implements GoogleApiClient.ConnectionC
                 showDisabled();
             }
         }
-
-        addDevice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mBluetoothAdapter.startDiscovery();
-            }
-        });
 
         IntentFilter filter = new IntentFilter();
 

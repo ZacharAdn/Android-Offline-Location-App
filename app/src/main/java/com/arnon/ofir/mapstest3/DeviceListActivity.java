@@ -7,17 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.arnon.ofir.mapstest3.more.DeviceListAdapter;
-import com.arnon.ofir.mapstest3.more.LocationOnMap;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -48,10 +42,21 @@ public class DeviceListActivity extends Activity {
 		
 		mAdapter		= new DeviceListAdapter(this);
 		
-		mAdapter.setData(mDeviceList);
+		mAdapter.setData(mDeviceList,permissions);
 		mAdapter.setListener(new DeviceListAdapter.OnPairButtonClickListener() {			
 			@Override
-			public void onPairButtonClick(int position) {
+			public void onPairButtonClick(int position){
+                BluetoothDevice device = mDeviceList.get(position);
+
+                if (device.getBondState() == BluetoothDevice.BOND_BONDED) {
+                    unpairDevice(device);
+                } else {
+                    showToast("Pairing...");
+                    //TODO set location to database
+
+                    pairDevice(device);
+                }
+			} /*{
 				final BluetoothDevice device = mDeviceList.get(position);
 
 
@@ -60,9 +65,9 @@ public class DeviceListActivity extends Activity {
 					@Override
 					public void onDataChange(DataSnapshot dataSnapshot) {
 						int bles= (int)dataSnapshot.getChildrenCount();
-						for (int i = 0; i < bles; i++) {
+						for (int i = 0; i < bles; i++) {//TODO wrong place!
 							LocationOnMap loc = dataSnapshot.child(String.valueOf(i)).getValue(LocationOnMap.class);
-							if(!device.getAddress().equals(loc.getPermissionsOrMac())){
+							if(!device.getAddress().equals(loc.getPermissions())){
 								unpairDevice(device);
 							}else {
 								showToast("Pairing...");
@@ -78,7 +83,7 @@ public class DeviceListActivity extends Activity {
 					}
 				});
 
-			}
+			}*/
 		});
 		
 		mListView.setAdapter(mAdapter);
