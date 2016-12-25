@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 /**
  * Device list.
- * 
+ *
  * @author Lorensius W. L. T <lorenz@londatiga.net>
  *
  */
@@ -32,18 +32,18 @@ public class DeviceListActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		setContentView(R.layout.activity_paired_devices);
 		permissions = this.getIntent().getExtras().getString("permissions");
-		
+
 		mDeviceList		= getIntent().getExtras().getParcelableArrayList("device.list");
-		
+
 		mListView		= (ListView) findViewById(R.id.lv_paired);
-		
+
 		mAdapter		= new DeviceListAdapter(this);
-		
+
 		mAdapter.setData(mDeviceList,permissions);
-		mAdapter.setListener(new DeviceListAdapter.OnPairButtonClickListener() {			
+		mAdapter.setListener(new DeviceListAdapter.OnPairButtonClickListener() {
 			@Override
 			public void onPairButtonClick(int position){
                 BluetoothDevice device = mDeviceList.get(position);
@@ -56,53 +56,26 @@ public class DeviceListActivity extends Activity {
 
                     pairDevice(device);
                 }
-			} /*{
-				final BluetoothDevice device = mDeviceList.get(position);
-
-
-				DatabaseReference reference = database.getReference("Ble");
-				reference.addListenerForSingleValueEvent(new ValueEventListener() {
-					@Override
-					public void onDataChange(DataSnapshot dataSnapshot) {
-						int bles= (int)dataSnapshot.getChildrenCount();
-						for (int i = 0; i < bles; i++) {//TODO wrong place!
-							LocationOnMap loc = dataSnapshot.child(String.valueOf(i)).getValue(LocationOnMap.class);
-							if(!device.getAddress().equals(loc.getPermissions())){
-								unpairDevice(device);
-							}else {
-								showToast("Pairing...");
-								i=bles;
-								pairDevice(device);
-							}
-						}
-					}
-
-					@Override
-					public void onCancelled(DatabaseError databaseError) {
-						Log.d("DatabaseError","reference.addListenerForSingleValueEvent canceld");
-					}
-				});
-
-			}*/
+			}
 		});
-		
+
 		mListView.setAdapter(mAdapter);
-		
-		registerReceiver(mPairReceiver, new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)); 
+
+		registerReceiver(mPairReceiver, new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED));
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		unregisterReceiver(mPairReceiver);
-		
+
 		super.onDestroy();
 	}
-	
-	
+
+
 	private void showToast(String message) {
 		Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
 	}
-	
+
     private void pairDevice(BluetoothDevice device) {
         try {
             Method method = device.getClass().getMethod("createBond", (Class[]) null);
@@ -116,26 +89,26 @@ public class DeviceListActivity extends Activity {
         try {
             Method method = device.getClass().getMethod("removeBond", (Class[]) null);
             method.invoke(device, (Object[]) null);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
     private final BroadcastReceiver mPairReceiver = new BroadcastReceiver() {
 	    public void onReceive(Context context, Intent intent) {
 	        String action = intent.getAction();
-	        
-	        if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {	        	
+
+	        if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
 	        	 final int state 		= intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR);
 	        	 final int prevState	= intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, BluetoothDevice.ERROR);
-	        	 
+
 	        	 if (state == BluetoothDevice.BOND_BONDED && prevState == BluetoothDevice.BOND_BONDING) {
 	        		 showToast("Paired");
 	        	 } else if (state == BluetoothDevice.BOND_NONE && prevState == BluetoothDevice.BOND_BONDED){
 	        		 showToast("Unpaired");
 	        	 }
-	        	 
+
 	        	 mAdapter.notifyDataSetChanged();
 	        }
 	    }
