@@ -403,6 +403,7 @@ public class UserActivity extends AppCompatActivity
     public void onConnected(@Nullable Bundle bundle) {
         // Get last known recent location.
         Location mCurrentLocation = enableGetMyLocation();
+        Log.d("speedOnConnected",String.valueOf(mCurrentLocation.getSpeed()));
         // Note that this can be NULL if last location isn't already known.
         if (mCurrentLocation != null) {
             // Print current location if not null
@@ -440,7 +441,8 @@ public class UserActivity extends AppCompatActivity
     public void onLocationChanged(Location location) {
 
         DatabaseReference myRef = database.getReference("users");
-        myRef.child(userName).setValue(new LocationOnMap(String.valueOf(location.getLatitude()),
+        Log.d("speed",String.valueOf(location.getSpeed()));
+        myRef.child(userName).setValue(new LocationOnMap(location.getSpeed(),String.valueOf(location.getLatitude()),
                 String.valueOf(location.getLongitude()), "user"));
     }
 

@@ -10,10 +10,20 @@ public class LocationOnMap implements Serializable{
     private String latitude;
     private String longitude;
     private String permissions;
+    private float speed;
 
-
+    public LocationOnMap(float speed, String permissions, String longitude, String latitude) {
+        this.speed = speed;
+        this.permissions = permissions;
+        this.longitude = longitude;
+        this.latitude = latitude;
+    }
 
     public LocationOnMap() {
+    }
+
+    public float getSpeed() {
+        return speed;
     }
 
     public LocationOnMap(String latitude, String longitude) {
