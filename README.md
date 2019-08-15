@@ -5,9 +5,11 @@ University Assignment<br/><br/>
 Android Application for Offline Location in the Univrsity<br/>
 Google maps API and Firebase database.
 
-Allows the user get his location, even if its no internet connection or GPS signal, with the help of - <br/>
+Allows the user get his location, even if its no internet connection or GPS signal, with the help of - <br/><br/>
+
 * QR code's that glued around the University and decoded to a location on the map (long,lang)<br/>
-* BLE scanner's that returns the location of the closest BLE stations <br/>
+* BLE scanner's that returns the location of the closest BLE stations <br/><br/>
+
 All stored in Firebase database that provides offline capabilities<br/>
 New stations can be added with Admin permission<br/><br/>
 
